@@ -42,6 +42,12 @@ func repeats(str string) []Pair {
 
 		fst, fstSize := utf8.DecodeRune(byteStr)
 		byteStr = byteStr[fstSize:]
+
+		if fst == '\\' {
+			rCount = utf8.RuneCount(byteStr)
+			continue
+		}
+
 		snd, _ := utf8.DecodeRune(byteStr)
 
 		if !unicode.IsDigit(snd) {

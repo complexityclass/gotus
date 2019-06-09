@@ -1,13 +1,5 @@
 package string_unzip
 
-//* "a4bc2d5e" => "aaaabccddddde"
-//* "abcd" => "abcd"
-//* "45" => "" (некорректная строка)
-//* `qwe\4\5` => `qwe45` (*)
-//* `qwe\45` => `qwe44444` (*)
-//* `qwe\\5` => `qwe\\\\\` (*)
-//"Hello, 世界"
-
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -30,6 +22,22 @@ func TestRegularStrings(t *testing.T) {
 	assert.Equal(t, "abcd", res2)
 	assert.NoError(t, err2)
 	assert.Error(t, err3)
+}
+
+func TestEscapedStrings(t *testing.T) {
+	//given
+	var str1 = "qwe\\4\\5"
+	var str2 = "qwe\\45"
+
+	//when
+	var res1, err1 = Unzip(str1)
+	var res2, err2 = Unzip(str2)
+
+	//then
+	assert.Equal(t, "qwe45", res1)
+	assert.NoError(t, err1)
+	assert.Equal(t, "qwe44444", res2)
+	assert.NoError(t, err2)
 }
 
 func TestRepeats(t *testing.T) {
