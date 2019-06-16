@@ -30,6 +30,7 @@ func frequencyCounter(filePath string, count int) (top []Pair) {
 		log.Fatal(err)
 		return
 	}
+	defer file.Close()
 
 	var scanner = bufio.NewScanner(file)
 	for scanner.Scan() {
