@@ -55,3 +55,54 @@ OUTER:
 		}
 	}
 }
+
+func TestScheduleTasksNegative(t *testing.T) {
+	//given
+	var tasks []func() (string, error)
+	tasks = append(tasks, func() (string, error) {
+		time.Sleep(1 * time.Second)
+		return "", errors.New("err1")
+	})
+
+	tasks = append(tasks, func() (string, error) {
+		time.Sleep(1 * time.Second)
+		return "", errors.New("err2")
+	})
+
+	tasks = append(tasks, func() (string, error) {
+		return "ok 1", nil
+	})
+
+	tasks = append(tasks, func() (string, error) {
+		time.Sleep(1 * time.Second)
+		return "", errors.New("err3")
+	})
+
+	tasks = append(tasks, func() (string, error) {
+		time.Sleep(6 * time.Second)
+		return "ok2", nil
+	})
+
+	timeout := time.After(10 * time.Second)
+	var expected = []string{"ok 1"}
+
+	//when
+	var resultsChan = ScheduleTasks2(tasks, 3, 2)
+	var actual []string
+OUTER:
+	for {
+		select {
+		case result, ok := <-resultsChan:
+			if !ok {
+				//channel closed
+				assert.Equal(t, expected, actual)
+				break OUTER
+			} else {
+				actual = append(actual, result)
+			}
+		case <-timeout:
+			t.Fail()
+			break OUTER
+		}
+	}
+}
